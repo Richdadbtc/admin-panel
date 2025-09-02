@@ -38,6 +38,7 @@ export default function AnnouncementForm({ onSuccess }: AnnouncementFormProps) {
     setIsLoading(true)
     setError('')
 
+    // Use or remove error variable
     try {
       const response = await api.post('/api/v1/admin/notifications/announcement', formData)
 

@@ -248,3 +248,20 @@ export default function AnalyticsPage() {
 
     );
 }
+
+// Remove unused import
+// import { TrendingUp } from 'lucide-react'
+
+// Fix useEffect dependency
+useEffect(() => {
+  fetchAnalytics()
+}, []) // Add fetchAnalytics to dependencies or use useCallback
+
+// Or use useCallback for fetchAnalytics
+const fetchAnalytics = useCallback(async () => {
+  // your fetch logic
+}, [])
+
+useEffect(() => {
+  fetchAnalytics()
+}, [fetchAnalytics])
