@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { RefreshCw, TrendingUp, Users, DollarSign, Trophy, Activity } from 'lucide-react';
+import { RefreshCw, Users, DollarSign, Trophy, Activity } from 'lucide-react';
 import api from '@/lib/api';
 import { toast } from 'sonner';
 import AdminLayout from '@/components/layout/AdminLayout';
@@ -40,7 +40,7 @@ export default function AnalyticsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [timeRange, setTimeRange] = useState('7d');
 
-  const fetchAnalytics = async () => {
+  const fetchAnalytics = useCallback(async () => {
     try {
       setIsLoading(true);
       const response = await api.get(`/api/v1/admin/analytics?range=${timeRange}`);
@@ -51,11 +51,11 @@ export default function AnalyticsPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [timeRange]);
 
   useEffect(() => {
     fetchAnalytics();
-  }, [timeRange]);
+  }, [fetchAnalytics]);
 
   const onRefresh = () => {
     fetchAnalytics();
@@ -248,20 +248,3 @@ export default function AnalyticsPage() {
 
     );
 }
-
-// Remove unused import
-// import { TrendingUp } from 'lucide-react'
-
-// Fix useEffect dependency
-useEffect(() => {
-  fetchAnalytics()
-}, []) // Add fetchAnalytics to dependencies or use useCallback
-
-// Or use useCallback for fetchAnalytics
-const fetchAnalytics = useCallback(async () => {
-  // your fetch logic
-}, [])
-
-useEffect(() => {
-  fetchAnalytics()
-}, [fetchAnalytics])

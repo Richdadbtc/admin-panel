@@ -154,9 +154,10 @@ export default function NotificationsPage() {
                   <h3 className="text-lg font-medium text-gray-900 mb-2">Notification Analytics</h3>
                   <p className="text-gray-600">View detailed analytics about notification performance.</p>
                 </div>
-                <NotificationAnalytics onRefresh={function (): Promise<any> {
-                                  throw new Error('Function not implemented.')
-                              } } />
+                <NotificationAnalytics onRefresh={async (): Promise<void> => {
+                  // Implement refresh logic here
+                  console.log('Refreshing analytics...');
+                }} />
               </div>
             )}
           </div>

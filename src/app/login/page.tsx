@@ -1,11 +1,12 @@
 'use client'
 
 import { useState } from 'react'
-import { signIn, getSession } from 'next-auth/react'
+import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import error from 'next/error'
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -16,7 +17,6 @@ type LoginForm = z.infer<typeof loginSchema>
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState('')
   const router = useRouter()
   
   const { register, handleSubmit, formState: { errors } } = useForm<LoginForm>({
@@ -25,7 +25,6 @@ export default function LoginPage() {
 
   const onSubmit = async (data: LoginForm) => {
     setIsLoading(true)
-    setError('')
     
     try {
       const result = await signIn('credentials', {
@@ -35,12 +34,13 @@ export default function LoginPage() {
       })
       
       if (result?.error) {
-        setError('Invalid credentials')
+        // Handle error appropriately
+        console.error('Login failed:', result.error)
       } else {
         router.push('/dashboard')
       }
-    } catch (error) {
-      setError('An error occurred. Please try again.')
+    } catch (err) {
+      console.error('An error occurred:', err)
     } finally {
       setIsLoading(false)
     }
@@ -88,7 +88,7 @@ export default function LoginPage() {
           </div>
           
           {error && (
-            <div className="text-red-600 text-sm text-center">{error}</div>
+            <div className="text-red-600 text-sm text-center">{error.toString()}</div>
           )}
           
           <button

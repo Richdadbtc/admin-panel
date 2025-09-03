@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Plus, Edit, Trash2, Eye, EyeOff } from 'lucide-react'
 import api from '@/lib/api'
 import AdminLayout from '@/components/layout/AdminLayout'
@@ -37,17 +37,13 @@ export default function QuizzesPage() {
     total: 0
   })
 
-  useEffect(() => {
-    fetchQuestions()
-  }, [filters, pagination.current])
-
-  const fetchQuestions = async () => {
+  const fetchQuestions = useCallback(async () => {
     try {
       setLoading(true)
       const params = new URLSearchParams({
         page: pagination.current.toString(),
         limit: '20',
-        ...Object.fromEntries(Object.entries(filters).filter(([_, v]) => v))
+        ...Object.fromEntries(Object.entries(filters).filter(([, v]) => v))
       })
       
       const response = await api.get(`/api/v1/admin/quiz/questions?${params}`)
@@ -58,7 +54,11 @@ export default function QuizzesPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [filters, pagination.current])
+
+  useEffect(() => {
+    fetchQuestions()
+  }, [fetchQuestions])
 
   const handleCreateQuestion = () => {
     setEditingQuestion(null)
