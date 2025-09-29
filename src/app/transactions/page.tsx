@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, ReactNode, Key } from 'react';
+import { useState, useEffect, useCallback, ReactNode } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -47,25 +47,68 @@ export default function TransactionsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  // Define transaction interface
-  interface Transaction {
-    _id: Key | null | undefined;
-    userId: any;
-    status(status: any): import("react").ReactNode;
-    description: ReactNode;
-    createdAt: string | number | Date;
-    reference: string;
-    id: string
-    amount: number
-    type: string
-    date: string
-    // add other properties
-  }
-  
-  // Fix useEffect
+  // Fetch transactions from backend
   const fetchTransactions = useCallback(async () => {
-    // your fetch logic
-  }, [])
+    try {
+      setIsLoading(true);
+      
+      // Build query parameters
+      const params = new URLSearchParams({
+        page: currentPage.toString(),
+        limit: '10'
+      });
+      
+      if (searchTerm) {
+        params.append('search', searchTerm);
+      }
+      
+      if (statusFilter !== 'all') {
+        params.append('status', statusFilter);
+      }
+      
+      if (typeFilter !== 'all') {
+        params.append('type', typeFilter);
+      }
+      
+      // Fetch transactions
+      const response = await api.get(`/api/v1/admin/transactions?${params.toString()}`);
+      
+      if (response.data.success) {
+        setTransactions(response.data.transactions);
+        setTotalPages(response.data.totalPages);
+        
+        // Calculate stats from the response
+        const transactionStats: TransactionStats = {
+          totalTransactions: response.data.total,
+          totalAmount: response.data.transactions.reduce((sum: number, t: Transaction) => sum + t.amount, 0),
+          pendingAmount: response.data.transactions
+            .filter((t: Transaction) => t.status === 'pending')
+            .reduce((sum: number, t: Transaction) => sum + t.amount, 0),
+          completedAmount: response.data.transactions
+            .filter((t: Transaction) => t.status === 'completed')
+            .reduce((sum: number, t: Transaction) => sum + t.amount, 0),
+          todayTransactions: response.data.transactions
+            .filter((t: Transaction) => {
+              const today = new Date().toDateString();
+              return new Date(t.createdAt).toDateString() === today;
+            }).length,
+          todayAmount: response.data.transactions
+            .filter((t: Transaction) => {
+              const today = new Date().toDateString();
+              return new Date(t.createdAt).toDateString() === today;
+            })
+            .reduce((sum: number, t: Transaction) => sum + t.amount, 0)
+        };
+        
+        setStats(transactionStats);
+      }
+    } catch (error) {
+      console.error('Error fetching transactions:', error);
+      toast.error('Failed to fetch transactions');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [currentPage, searchTerm, statusFilter, typeFilter])
   
   useEffect(() => {
     fetchTransactions()
