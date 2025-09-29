@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Search, Plus, Edit, Trash2, MoreHorizontal, UserPlus } from 'lucide-react'
+import { Search, Filter, MoreHorizontal, Edit, Trash2, UserPlus } from 'lucide-react'
 import api from '@/lib/api'
 import AdminLayout from '@/components/layout/AdminLayout'
 import UserForm from '@/components/users/UserForm'
